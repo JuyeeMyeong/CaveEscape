@@ -5,6 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "InteractTriggerZone.h"
 
 // Sets default values
 ADoor::ADoor()
