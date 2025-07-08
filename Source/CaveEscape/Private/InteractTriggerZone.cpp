@@ -5,8 +5,6 @@
 #include "Components/BoxComponent.h"
 #include "CaveEscapeCharacter.h"
 
-#include "Engine/Engine.h"
-
 AInteractTriggerZone::AInteractTriggerZone()
 	: TargetInteractableActor(nullptr)
 {
@@ -28,10 +26,6 @@ void AInteractTriggerZone::OnTriggerEnter(UPrimitiveComponent* OverlappedComp, A
 {
 	if (ACaveEscapeCharacter* Player = Cast<ACaveEscapeCharacter>(OtherActor))
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("Actor's in TriggerBox"));
-		}
 		Player->SetCurrentTriggerZone(this);
 	}
 }

@@ -6,8 +6,6 @@
 #include "KeySlot.h"
 #include "Door.h"
 
-#include "Engine/Engine.h"
-
 APuzzleMechanism::APuzzleMechanism()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -27,10 +25,6 @@ void APuzzleMechanism::TrySolve()
 		}
 	}*/
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("TrySolve() !!!!!!!!"));
-	}
 
 	if (TargetDoor)
 	{

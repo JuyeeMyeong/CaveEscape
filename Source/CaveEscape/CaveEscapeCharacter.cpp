@@ -17,9 +17,6 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
-
-#include "Engine/Engine.h"
-
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 ACaveEscapeCharacter::ACaveEscapeCharacter()
@@ -173,10 +170,6 @@ void ACaveEscapeCharacter::CloseUI()
 
 void ACaveEscapeCharacter::TryInteract()
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("TryInteract() being called"));
-	}
 
 	if (CurrentTriggerZone)
 	{
@@ -184,11 +177,6 @@ void ACaveEscapeCharacter::TryInteract()
 
 		if (!Target)
 		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("Target x -> puzzlemode"));
-			}
-
 			if (UPuzzleModeManager* PuzzleManager = FindComponentByClass<UPuzzleModeManager>())
 			{
 				PuzzleManager->EnterPuzzleMode();
@@ -207,13 +195,6 @@ void ACaveEscapeCharacter::TryInteract()
 
 void ACaveEscapeCharacter::HandlePlaceItemKey1()
 {
-	if (GEngine)
-	{
-		const FString DebugMessage = FString::Printf(TEXT("PuzzleMode: %s"),
-			PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode() ? TEXT("TRUE") : TEXT("FALSE"));
-
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, DebugMessage);
-	}
 
 	if (PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode())
 	{
