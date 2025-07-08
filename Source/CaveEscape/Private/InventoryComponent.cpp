@@ -19,20 +19,6 @@ bool UInventoryComponent::AddItem(APuzzleItemBase* Item)
 	return false;
 }
 
-void UInventoryComponent::SelectNextItem()
-{
-	if (Items.Num() == 0) return;
-
-	SelectedIndex = (SelectedIndex + 1) % Items.Num();
-}
-
-void UInventoryComponent::SelectPreviousItem()
-{
-	if (Items.Num() == 0) return;
-
-	SelectedIndex = (SelectedIndex - 1 + Items.Num()) % Items.Num();
-}
-
 void UInventoryComponent::SelectItemByIndex(int32 Index)
 {
 	if (Items.IsValidIndex(Index))

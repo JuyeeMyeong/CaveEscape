@@ -29,12 +29,6 @@ public:
 	bool AddItem(APuzzleItemBase* Item);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void SelectNextItem();
-
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void SelectPreviousItem();
-
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void SelectItemByIndex(int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
