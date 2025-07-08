@@ -16,8 +16,11 @@ class CAVEESCAPE_API UInventoryComponent : public UActorComponent
 public:
 	UInventoryComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<APuzzleItemBase*> Items;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
+	TArray<TSubclassOf<APuzzleItemBase>> DefaultItemClasses;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
 	int32 SelectedIndex;
@@ -39,4 +42,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	const TArray<APuzzleItemBase*>& GetItems() const { return Items; }
+
+	virtual void BeginPlay() override;
 };

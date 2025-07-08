@@ -19,8 +19,8 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* TriggerBox;
 
-	UPROPERTY()
-	TSet<AActor*> OverlappingInteractables;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Trigger", meta = (ExposeOnSpawn = true))
+	AActor* TargetInteractableActor;
 
 protected:
 	virtual void BeginPlay() override;

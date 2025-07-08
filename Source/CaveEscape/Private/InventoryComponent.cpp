@@ -50,3 +50,29 @@ APuzzleItemBase* UInventoryComponent::GetSelectedItem() const
 	return nullptr;
 }
 
+void UInventoryComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	for (TSubclassOf<APuzzleItemBase> ItemClass : DefaultItemClasses)
+	{
+		if (ItemClass)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = GetOwner();
+
+			APuzzleItemBase* NewItem = GetWorld()->SpawnActor<APuzzleItemBase>(
+				ItemClass,
+				FVector::ZeroVector,
+				FRotator::ZeroRotator,
+				SpawnParams
+			);
+
+			if (NewItem)
+			{
+				AddItem(NewItem);
+			}
+		}
+	}
+}
+

@@ -24,6 +24,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
 	TArray<class APuzzleSlotBase*> PuzzleSlots;
 
-	UPROPERTY(EditANywhere, BlueprintReadWrite, Category = "Puzzle")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
 	ADoor* TargetDoor;
 };

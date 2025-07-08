@@ -11,6 +11,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
+class AInteractTriggerZone;
+class UPuzzleModeManager;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -49,6 +51,30 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputAction* MouseLookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* CloseUIAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* PlaceItem1Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* PlaceItem2Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* PlaceItem3Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* PlaceItem4Action;
+
+	UPROPERTY()
+	AInteractTriggerZone* CurrentTriggerZone;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Puzzle", meta = (AllowPrivateAccess = "true"))
+	UPuzzleModeManager* PuzzleModeManager;
+
+	UPROPERTY()
+	bool bIsInPuzzleMode;
+
 public:
 
 	/** Constructor */
@@ -84,6 +110,29 @@ public:
 	/** Handles jump pressed inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
+
+	/** Closes any active UI */
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	virtual void CloseUI();
+
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	virtual void TryInteract();
+
+	UFUNCTION()
+	void HandlePlaceItemKey1();
+
+	UFUNCTION()
+	void HandlePlaceItemKey2();
+
+	UFUNCTION()
+	void HandlePlaceItemKey3();
+
+	UFUNCTION()
+	void HandlePlaceItemKey4();
+
+	void SetCurrentTriggerZone(AInteractTriggerZone* Zone);
+
+	void SetPuzzleInputMode(bool bEnable, UUserWidget* OptionalWidget = nullptr);
 
 public:
 

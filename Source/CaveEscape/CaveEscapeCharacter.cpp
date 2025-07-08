@@ -10,6 +10,15 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "InteractTriggerZone.h"
+#include "UITriggerActorBase.h"
+#include "PuzzleModeManager.h"
+#include "EngineUtils.h"
+#include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+
+
+#include "Engine/Engine.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -22,6 +31,8 @@ ACaveEscapeCharacter::ACaveEscapeCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+	
+	bIsInPuzzleMode = false;
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -47,6 +58,8 @@ ACaveEscapeCharacter::ACaveEscapeCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	PuzzleModeManager = CreateDefaultSubobject<UPuzzleModeManager>(TEXT("PuzzleModeManager"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -66,6 +79,17 @@ void ACaveEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACaveEscapeCharacter::Look);
+
+		// Interaction
+		EnhancedInputComponent->BindAction(CloseUIAction, ETriggerEvent::Triggered, this, &ACaveEscapeCharacter::CloseUI);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ACaveEscapeCharacter::TryInteract);
+
+		// PuzzleSlots
+		EnhancedInputComponent->BindAction(PlaceItem1Action, ETriggerEvent::Started, this, &ACaveEscapeCharacter::HandlePlaceItemKey1);
+		EnhancedInputComponent->BindAction(PlaceItem2Action, ETriggerEvent::Started, this, &ACaveEscapeCharacter::HandlePlaceItemKey2);
+		EnhancedInputComponent->BindAction(PlaceItem3Action, ETriggerEvent::Started, this, &ACaveEscapeCharacter::HandlePlaceItemKey3);
+		EnhancedInputComponent->BindAction(PlaceItem4Action, ETriggerEvent::Started, this, &ACaveEscapeCharacter::HandlePlaceItemKey4);
+
 	}
 	else
 	{
@@ -131,4 +155,124 @@ void ACaveEscapeCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void ACaveEscapeCharacter::CloseUI()
+{
+
+	for (TActorIterator<AUITriggerActorBase> It(GetWorld()); It; ++It)
+	{
+		AUITriggerActorBase* UIActor = *It;
+		if (UIActor && UIActor->HasOpenWidget())
+		{
+			UIActor->HideUI();
+			break;
+		}
+	}
+}
+
+void ACaveEscapeCharacter::TryInteract()
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("TryInteract() being called"));
+	}
+
+	if (CurrentTriggerZone)
+	{
+		AActor* Target = CurrentTriggerZone->TargetInteractableActor;
+
+		if (!Target)
+		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("Target x -> puzzlemode"));
+			}
+
+			if (UPuzzleModeManager* PuzzleManager = FindComponentByClass<UPuzzleModeManager>())
+			{
+				PuzzleManager->EnterPuzzleMode();
+				bIsInPuzzleMode = true;
+
+			}
+			return;
+		}
+
+		if (Target->Implements<UReactToTraggerInterface>())
+		{
+			IReactToTraggerInterface::Execute_HandleTriggerReact(Target);
+		}
+	}
+}
+
+void ACaveEscapeCharacter::HandlePlaceItemKey1()
+{
+	if (GEngine)
+	{
+		const FString DebugMessage = FString::Printf(TEXT("PuzzleMode: %s"),
+			PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode() ? TEXT("TRUE") : TEXT("FALSE"));
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, DebugMessage);
+	}
+
+	if (PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode())
+	{
+		PuzzleModeManager->HandleKeyInput(0); // 0¹ø ½½·Ô
+	}
+}
+
+void ACaveEscapeCharacter::HandlePlaceItemKey2()
+{
+	if (PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode())
+	{
+		PuzzleModeManager->HandleKeyInput(1);
+	}
+}
+
+void ACaveEscapeCharacter::HandlePlaceItemKey3()
+{
+	if (PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode())
+	{
+		PuzzleModeManager->HandleKeyInput(2);
+	}
+}
+
+void ACaveEscapeCharacter::HandlePlaceItemKey4()
+{
+	if (PuzzleModeManager && PuzzleModeManager->IsInPuzzleMode())
+	{
+		PuzzleModeManager->HandleKeyInput(3);
+	}
+}
+
+void ACaveEscapeCharacter::SetCurrentTriggerZone(AInteractTriggerZone* Zone)
+{
+	CurrentTriggerZone = Zone;
+}
+
+void ACaveEscapeCharacter::SetPuzzleInputMode(bool bEnable, UUserWidget* OptionalWidget)
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!PC) return;
+
+	if (bEnable)
+	{
+		PC->SetShowMouseCursor(true);
+
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+
+		if (OptionalWidget)
+		{
+			InputMode.SetWidgetToFocus(OptionalWidget->TakeWidget());
+		}
+
+		PC->SetInputMode(InputMode);
+	}
+	else
+	{
+		PC->SetShowMouseCursor(false);
+		PC->SetInputMode(FInputModeGameOnly());
+	}
 }

@@ -19,7 +19,6 @@ public:
 
 	virtual bool IsCorrectPlaced_Implementation() const override;
 
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
-	int32 SlotIndex;
+	int32 GetSlotIndex() const { return SlotIndex; }
+
 };

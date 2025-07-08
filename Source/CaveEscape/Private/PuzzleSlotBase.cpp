@@ -4,9 +4,15 @@
 #include "PuzzleSlotBase.h"
 #include "PuzzleItemBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "PuzzleMechanism.h"
+#include "CaveEscapeCharacter.h"
+#include "PuzzleModeManager.h"
+#include "InventoryComponent.h"
+#include "Kismet/GameplayStatics.h"	
 
 APuzzleSlotBase::APuzzleSlotBase()
 	: PlacedItem(nullptr),
+	SlotIndex(0),
 	PlacedLocation(FVector::ZeroVector)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -24,6 +30,12 @@ bool APuzzleSlotBase::PlaceItem(APuzzleItemBase* Item)
 	
 	PlacedItem->AttachToComponent(SlotMesh, FAttachmentTransformRules::KeepRelativeTransform);
 	PlacedItem->SetActorRelativeLocation(PlacedLocation);
+
+	if (PuzzleMechanism)
+	{
+		PuzzleMechanism->TrySolve();
+	}
+
 	return true;
 }
 
@@ -42,3 +54,15 @@ bool APuzzleSlotBase::IsCorrectPlaced_Implementation() const
 }
 
 
+bool APuzzleSlotBase::HandleTriggerReact_Implementation()
+{
+	if (ACaveEscapeCharacter* PlayerCharacter = Cast<ACaveEscapeCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+	{
+		if (UPuzzleModeManager* PuzzleManager = PlayerCharacter->FindComponentByClass<UPuzzleModeManager>())
+		{
+			PuzzleManager->EnterPuzzleMode();
+			return true;
+		}
+	}
+	return false;
+}

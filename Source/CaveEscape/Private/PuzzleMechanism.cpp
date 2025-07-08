@@ -6,6 +6,8 @@
 #include "KeySlot.h"
 #include "Door.h"
 
+#include "Engine/Engine.h"
+
 APuzzleMechanism::APuzzleMechanism()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -13,6 +15,7 @@ APuzzleMechanism::APuzzleMechanism()
 
 void APuzzleMechanism::TrySolve()
 {
+	/*
 	for (APuzzleSlotBase* Slot : PuzzleSlots)
 	{
 		if (AKeySlot* KeySlot = Cast<AKeySlot>(Slot))
@@ -22,6 +25,11 @@ void APuzzleMechanism::TrySolve()
 				return;
 			}
 		}
+	}*/
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("TrySolve() !!!!!!!!"));
 	}
 
 	if (TargetDoor)
